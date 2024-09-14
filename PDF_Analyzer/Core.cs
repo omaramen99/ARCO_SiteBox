@@ -40,7 +40,7 @@ namespace PDF_Analyzer
         {
             List<int> pages = new List<int>();
             for (int i = 0; i < document.Pages.Count; i++)
-            {
+            { 
                 PDFContentExtractor ce = new PDFContentExtractor(document.Pages[i]);
                 PDFVisualObjectCollection pageVisualObjects = ce.ExtractVisualObjects(false);
                 for (int j = 0; j < pageVisualObjects.Count; j++)
