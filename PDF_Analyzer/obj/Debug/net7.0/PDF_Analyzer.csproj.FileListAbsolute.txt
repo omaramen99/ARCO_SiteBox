@@ -1,0 +1,17 @@
+D:\projects\C#\repo\ARCOMurray\PDF_Analyzer\bin\Debug\net7.0\PDF_Analyzer.exe
+D:\projects\C#\repo\ARCOMurray\PDF_Analyzer\bin\Debug\net7.0\PDF_Analyzer.deps.json
+D:\projects\C#\repo\ARCOMurray\PDF_Analyzer\bin\Debug\net7.0\PDF_Analyzer.runtimeconfig.json
+D:\projects\C#\repo\ARCOMurray\PDF_Analyzer\bin\Debug\net7.0\PDF_Analyzer.dll
+D:\projects\C#\repo\ARCOMurray\PDF_Analyzer\bin\Debug\net7.0\PDF_Analyzer.pdb
+D:\projects\C#\repo\ARCOMurray\PDF_Analyzer\bin\Debug\net7.0\O2S.Components.PDF4NET.NET.dll
+D:\projects\C#\repo\ARCOMurray\PDF_Analyzer\obj\Debug\net7.0\PDF_Analyzer.csproj.AssemblyReference.cache
+D:\projects\C#\repo\ARCOMurray\PDF_Analyzer\obj\Debug\net7.0\PDF_Analyzer.GeneratedMSBuildEditorConfig.editorconfig
+D:\projects\C#\repo\ARCOMurray\PDF_Analyzer\obj\Debug\net7.0\PDF_Analyzer.AssemblyInfoInputs.cache
+D:\projects\C#\repo\ARCOMurray\PDF_Analyzer\obj\Debug\net7.0\PDF_Analyzer.AssemblyInfo.cs
+D:\projects\C#\repo\ARCOMurray\PDF_Analyzer\obj\Debug\net7.0\PDF_Analyzer.csproj.CoreCompileInputs.cache
+D:\projects\C#\repo\ARCOMurray\PDF_Analyzer\obj\Debug\net7.0\PDF_Analyzer.csproj.CopyComplete
+D:\projects\C#\repo\ARCOMurray\PDF_Analyzer\obj\Debug\net7.0\PDF_Analyzer.dll
+D:\projects\C#\repo\ARCOMurray\PDF_Analyzer\obj\Debug\net7.0\refint\PDF_Analyzer.dll
+D:\projects\C#\repo\ARCOMurray\PDF_Analyzer\obj\Debug\net7.0\PDF_Analyzer.pdb
+D:\projects\C#\repo\ARCOMurray\PDF_Analyzer\obj\Debug\net7.0\PDF_Analyzer.genruntimeconfig.cache
+D:\projects\C#\repo\ARCOMurray\PDF_Analyzer\obj\Debug\net7.0\ref\PDF_Analyzer.dll
