@@ -45,7 +45,7 @@ namespace PDF_Analyzer
                 PDFVisualObjectCollection pageVisualObjects = ce.ExtractVisualObjects(false);
                 for (int j = 0; j < pageVisualObjects.Count; j++)
                 {
-                    var part = pageVisualObjects[j];
+                    var part = pageVisualObjects[j]; 
                     if (part.Type == PDFVisualObjectType.Text)
                     {
                         if ((part as PDFTextVisualObject).TextRun.Text.Contains("PANEL:"))
