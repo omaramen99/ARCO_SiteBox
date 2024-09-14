@@ -61,8 +61,8 @@ namespace PDF_Analyzer
         private static void PDF4NET_Run()
         {
 
-            string appDirectory1 = AppDomain.CurrentDomain.BaseDirectory;
-            PDFFixedDocument document = new PDFFixedDocument(appDirectory1 + "00. Panel Shops - Field Use.pdf");
+            string appDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            PDFFixedDocument document = new PDFFixedDocument(appDirectory + "00. Panel Shops - Field Use.pdf");
 
             List<int> validPages = GetValidPages(document);
 
@@ -167,7 +167,7 @@ namespace PDF_Analyzer
                 //generate HTML viewer
 
                 // Specify the path to the file
-                string filePath = appDirectory1 + "SVGViewerTemplate.html";
+                string filePath = appDirectory + "SVGViewerTemplate.html";
 
                 // Read the contents of the file into a string
                 string fileContents = File.ReadAllText(filePath);
@@ -206,8 +206,8 @@ namespace PDF_Analyzer
                 //<PREVPAGE>
 
 
-                Directory.CreateDirectory(appDirectory1 + "RESULT");
-                string savefilePath = appDirectory1 + "RESULT" + $"\\Page_{page+1}.html";
+                Directory.CreateDirectory(appDirectory + "RESULT");
+                string savefilePath = appDirectory + "RESULT" + $"\\Page_{page+1}.html";
 
 
 
