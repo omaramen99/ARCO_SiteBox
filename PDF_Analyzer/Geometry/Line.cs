@@ -166,6 +166,43 @@ namespace PDF_Analyzer.Geometry
             return vectorToPoint.DistanceTo(projectionVector);
         }
 
+        public static Rectangle GetBoundingBox(List<Line> lines) 
+        {
+            Vector top_left = new Vector();
+            Vector bottom_right = new Vector();
+
+            if (lines.Any())
+            {
+                top_left = lines[0].Start.Clone();
+                bottom_right = lines[0].Start.Clone();
+
+                foreach (Line line in lines) 
+                {
+                    Vector s = line.Start;
+                    Vector e = line.End;
+
+                    double min_x = s.X < e.X ? s.X : e.X;
+                    double min_y = s.Y < e.Y ? s.Y : e.Y;
+
+                    double max_x = s.X > e.X ? s.X : e.X;
+                    double max_y = s.Y > e.Y ? s.Y : e.Y;
+
+
+
+                    if (min_x < top_left.X) top_left.X = min_x;
+                    if (min_y < top_left.Y) top_left.Y = min_y;
+
+                    if (max_x > bottom_right.X) bottom_right.X = max_x;
+                    if (max_y > bottom_right.Y) bottom_right.Y = max_y;
+
+                }
+            }
+
+
+
+            return new Rectangle(top_left, bottom_right);
+        }
+
         //public string ToSVGPath() 
         //{
         //    return "M ";

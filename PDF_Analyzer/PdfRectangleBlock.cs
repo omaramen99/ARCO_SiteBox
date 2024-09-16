@@ -13,18 +13,17 @@ namespace PDF_Analyzer
     {
         public Rectangle rectangle { get; set; }
         public PDFPathVisualObject pdfPathObject { get; set; }
-        
 
-        public List<PdfRectangleBlock> DirectChilds { get; set; }
-
-        public List<PdfRectangleBlock> allChilds { get; set; }
 
         public PdfRectangleBlock(Rectangle rectangle, PDFPathVisualObject pdfPathObject)
         {
             this.rectangle = rectangle;
             this.pdfPathObject = pdfPathObject;
-            DirectChilds = new List<PdfRectangleBlock>();
-            allChilds = new List<PdfRectangleBlock>();
+        }
+
+        public List<Line> ToLines()
+        {
+            return rectangle.GetSides();
         }
     }
 }

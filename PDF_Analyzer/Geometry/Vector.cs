@@ -146,6 +146,11 @@ namespace PDF_Analyzer.Geometry
                    Math.Abs(this.Y - other.Y) <= tolerance &&
                    Math.Abs(this.Z - other.Z) <= tolerance;
         }
+
+        public Vector Clone() 
+        {
+            return new Vector(X, Y, Z);
+        }
         /// <summary>
         /// Returns a string representation of the vector in the format "(X, Y, Z)".
         /// </summary>
