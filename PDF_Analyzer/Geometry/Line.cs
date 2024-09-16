@@ -79,7 +79,7 @@ namespace PDF_Analyzer.Geometry
         }
 
         // Method to calculate the intersection point of two lines
-        public Vector IntersectionPoint(Line otherLine)
+        public Vector IntersectionPoint(Line otherLine, bool VisualIntersection = true)
         {
             // Get the equations of the two lines
             Tuple<double, double, double> thisEquation = GetEquation();
@@ -98,6 +98,17 @@ namespace PDF_Analyzer.Geometry
             double x =- (thisEquation.Item3 * otherEquation.Item2 - thisEquation.Item2 * otherEquation.Item3) / determinant;
             double y =- (thisEquation.Item1 * otherEquation.Item3 - thisEquation.Item3 * otherEquation.Item1) / determinant;
 
+            Vector intersectionPoint = new Vector(x, y);
+
+            if (VisualIntersection)
+            {
+                if (Math.Abs(this.Midpoint().DistanceTo(intersectionPoint) - this.Length() / 2) > 0.00001)//[TODO] add tolerance
+                {
+                    return null;
+                }
+            }
+
+
             return new Vector(x, y);
         }
 
@@ -105,22 +116,22 @@ namespace PDF_Analyzer.Geometry
         public bool IsParallelTo(Line otherLine)
         {
             // Get the direction vectors of the two lines
-            Vector thisDirection = DirectionVector();
-            Vector otherDirection = otherLine.DirectionVector();
+            Vector thisDirection = DirectionVector().Normalize();
+            Vector otherDirection = otherLine.DirectionVector().Normalize();
 
             // Check if the cross product of the direction vectors is zero
-            return Math.Abs(thisDirection.X * otherDirection.Y - thisDirection.Y * otherDirection.X) < 0.0001;
+            return Math.Abs(thisDirection.X * otherDirection.Y - thisDirection.Y * otherDirection.X) < 0.001;
         }
 
         // Method to check if two lines are perpendicular
         public bool IsPerpendicularTo(Line otherLine)
         {
             // Get the direction vectors of the two lines
-            Vector thisDirection = DirectionVector();
-            Vector otherDirection = otherLine.DirectionVector();
+            Vector thisDirection = DirectionVector().Normalize();
+            Vector otherDirection = otherLine.DirectionVector().Normalize();
 
             // Check if the dot product of the direction vectors is zero
-            return Math.Abs(thisDirection.X * otherDirection.X + thisDirection.Y * otherDirection.Y) < 0.0001;
+            return Math.Abs(thisDirection.X * otherDirection.X + thisDirection.Y * otherDirection.Y) < 0.001;
         }
 
         // Method to check if one line is an extension of another

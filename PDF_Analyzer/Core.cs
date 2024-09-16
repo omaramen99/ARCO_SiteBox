@@ -12,9 +12,7 @@ using PDF_Analyzer.Geometry;
 using Rectangle = PDF_Analyzer.Geometry.Rectangle;
 using System.IO;
 
-using System.Windows.Forms;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using System.Windows;
+
 
 namespace PDF_Analyzer
 {
@@ -39,7 +37,11 @@ namespace PDF_Analyzer
 
             foreach (int page in validPages)
             {
+                Console.WriteLine("Page:" + page.ToString() + "___________________________________________________");
+                if (page == 157)
+                {
 
+                }
                 List<PdfRectangleBlock> blocksList = new List<PdfRectangleBlock>();
                 List<Line> linesList = new List<Line>();
 
@@ -99,14 +101,14 @@ namespace PDF_Analyzer
                     foreach (PDFPathItem pathItem in pathVisualObject.PathItems)
                     {
                         //ToString(pathItem);
-                        Console.WriteLine(PDFPathItemToString(pathItem));
+                       // Console.WriteLine(PDFPathItemToString(pathItem));
                         wallPath.AppendLine(PDFPathItemToString(pathItem));
                     }
                 }
 
                 foreach (Rectangle rect in frames)
                 {
-                    Console.WriteLine(rect.ToSVGPath());
+                   // Console.WriteLine(rect.ToSVGPath());
                     framesPath.AppendLine(rect.ToSVGPath());
                 }
 
@@ -247,6 +249,12 @@ namespace PDF_Analyzer
                         }
                         else if ((pathVisualObject.Pen != null) && pathVisualObject.Pen.Color.ColorSpace.Type == PDFColorSpaceType.Gray)
                         {
+                            ////Log SVG Path in console
+                            foreach (PDFPathItem pathItem in pathVisualObject.PathItems)
+                            {
+                                //ToString(pathItem);
+                                Console.WriteLine(PDFPathItemToString(pathItem));
+                            }
 
                             Rectangle rect = GetRectangleFromPath(pathVisualObject);
                             if (rect == null)
@@ -256,6 +264,7 @@ namespace PDF_Analyzer
                             }
                             //rectangleList.Add(rect);
                             blocksList.Add(new PdfRectangleBlock(rect, pathVisualObject));
+
 
                         }
 

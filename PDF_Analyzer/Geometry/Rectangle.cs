@@ -216,8 +216,9 @@ namespace PDF_Analyzer.Geometry
             }
 
             // Check if opposite sides are parallel and have equal lengths
-            if (lines[0].IsParallelTo(lines[2]) && lines[1].IsParallelTo(lines[3]) &&
-                lines[0].Length() == lines[2].Length() && lines[1].Length() == lines[3].Length())
+            if (lines[0].IsParallelTo(lines[2]) && lines[1].IsParallelTo(lines[3]) )
+               // &&
+                //Math.Abs(lines[0].Length() - lines[2].Length()) < 0.1  && Math.Abs(lines[1].Length() - lines[3].Length()) < 0.1)
             {
                 // Check if adjacent sides are perpendicular
                 if (lines[0].IsPerpendicularTo(lines[1]) && lines[1].IsPerpendicularTo(lines[2]) &&
