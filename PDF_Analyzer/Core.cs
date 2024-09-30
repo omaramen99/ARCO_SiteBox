@@ -11,7 +11,11 @@ using System.Globalization;
 using PDF_Analyzer.Geometry;
 using Rectangle = PDF_Analyzer.Geometry.Rectangle;
 using System.IO;
-
+using System.Reflection;
+using PDF_Analyzer.Result;
+using IronPdf;
+using IronSoftware.Drawing;
+//using ImageMagick;
 
 
 namespace PDF_Analyzer
@@ -22,19 +26,47 @@ namespace PDF_Analyzer
         [STAThread]
         public static void Run()
         {
-            PDF4NET_Run();
+            PDFAnalyze_Run();
+           // GenerateImages();
+
+        }
+        public static void GenerateImages() 
+        {
+            Assembly runningAssembly = Assembly.GetExecutingAssembly();
+            string appDirectory = runningAssembly.ManifestModule.FullyQualifiedName.Remove(runningAssembly.ManifestModule.FullyQualifiedName.Length - runningAssembly.ManifestModule.Name.Length);
+            string setPositionBatchPath = System.IO.Path.Combine(runningAssembly.ManifestModule.FullyQualifiedName.Remove(runningAssembly.ManifestModule.FullyQualifiedName.Length - runningAssembly.ManifestModule.Name.Length), "00. Panel Shops - Field Use.pdf");
+            string saveBatchPath = System.IO.Path.Combine(runningAssembly.ManifestModule.FullyQualifiedName.Remove(runningAssembly.ManifestModule.FullyQualifiedName.Length - runningAssembly.ManifestModule.Name.Length), "pdfImages\\*.png");
+
+
+
+
+            // Load the PDF file you want to convert to images
+            PdfDocument pdf = PdfDocument.FromFile(setPositionBatchPath);
+
+            // Extract all the pages to a folder as image files (PNG by default)
+            pdf.RasterizeToImageFiles(saveBatchPath);
+
+            //// Specify dimensions and PDF page ranges (optional)
+            //pdf.RasterizeToImageFiles(@"C:\image\folder\example_pdf_image_*.jpg", 100, 80);
+
+            //// Extract all pages as AnyBitmap objects
+            //AnyBitmap[] pdfBitmaps = pdf.ToBitmap();
 
 
         }
 
-        private static void PDF4NET_Run()
+        public static List<PDFSheetAssemblyData> PDFAnalyze_Run(bool GenerateReviewFiles = true)
         {
 
-            string appDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            PDFFixedDocument document = new PDFFixedDocument(appDirectory + "00. Panel Shops - Field Use.pdf");
+            //string appDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            Assembly runningAssembly = Assembly.GetExecutingAssembly();
+            string appDirectory = runningAssembly.ManifestModule.FullyQualifiedName.Remove(runningAssembly.ManifestModule.FullyQualifiedName.Length - runningAssembly.ManifestModule.Name.Length);
+            string setPositionBatchPath = System.IO.Path.Combine(runningAssembly.ManifestModule.FullyQualifiedName.Remove(runningAssembly.ManifestModule.FullyQualifiedName.Length - runningAssembly.ManifestModule.Name.Length), "00. Panel Shops - Field Use.pdf");
+            //PDFFixedDocument document = new PDFFixedDocument(appDirectory + "00. Panel Shops - Field Use.pdf");
+            PDFFixedDocument document = new PDFFixedDocument(setPositionBatchPath);
 
-            List<int> validPages = GetValidPages(document);
-
+            (List<int> validPages, List<string> panelNames) = GetValidPages(document);
+            List<PDFSheetAssemblyData> resultData = new List<PDFSheetAssemblyData>();
             foreach (int page in validPages)
             {
                 Console.WriteLine("Page:" + page.ToString() + "___________________________________________________");
@@ -59,21 +91,6 @@ namespace PDF_Analyzer
 
                 Rectangle largestRectangle = Line.GetBoundingBox(allPageLines); ////blocksList[0].rectangle;//sheet bounds// [TODO] get all rects containing BoundingBox instead
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                 double paddingPercentage = 0.1;
                 double min_p = 1 - paddingPercentage;
                 double max_p = 1 + paddingPercentage;
@@ -89,41 +106,101 @@ namespace PDF_Analyzer
                 List<Rectangle> frames = GenerateFrames(blocks, 1);
 
 
+
+                PDFSheetAssemblyData resultPanel = new PDFSheetAssemblyData(panelNames[validPages.IndexOf(page)], page+1, blocks.Select(b => b.rectangle).ToList(), frames);
+                resultData.Add(resultPanel);
+
                 //Generate Result Review
                 #region Result Review
-
-                StringBuilder wallPath = new StringBuilder();
-                StringBuilder framesPath = new StringBuilder();
-
-                foreach (PdfRectangleBlock block in blocks)
+                if (GenerateReviewFiles)
                 {
-                    var pathVisualObject = block.pdfPathObject;
-                    foreach (PDFPathItem pathItem in pathVisualObject.PathItems)
+                    StringBuilder wallPath = new StringBuilder();
+                    StringBuilder framesPath = new StringBuilder();
+
+                    foreach (PdfRectangleBlock block in blocks)
                     {
-                        //ToString(pathItem);
-                       // Console.WriteLine(PDFPathItemToString(pathItem));
-                        wallPath.AppendLine(PDFPathItemToString(pathItem));
+                        var pathVisualObject = block.pdfPathObject;
+                        foreach (PDFPathItem pathItem in pathVisualObject.PathItems)
+                        {
+                            //ToString(pathItem);
+                            // Console.WriteLine(PDFPathItemToString(pathItem));
+                            wallPath.AppendLine(PDFPathItemToString(pathItem));
+                        }
                     }
+
+                    foreach (Rectangle rect in frames)
+                    {
+                        // Console.WriteLine(rect.ToSVGPath());
+                        framesPath.AppendLine(rect.ToSVGPath());
+                    }
+
+                    //generate HTML viewer for review
+                    GenerateHTMLViewer(appDirectory, wallPath, framesPath, page, validPages, panelNames);
                 }
 
-                foreach (Rectangle rect in frames)
-                {
-                   // Console.WriteLine(rect.ToSVGPath());
-                    framesPath.AppendLine(rect.ToSVGPath());
-                }
-
-                //generate HTML viewer for review
-                GenerateHTMLViewer(appDirectory, wallPath, framesPath, page, validPages);
 
                 #endregion
 
             }
-
-
+            GenerateImages();
+            return resultData;
         }
-        public static List<int> GetValidPages(PDFFixedDocument document)
+
+        public static List<PDFSheetAssemblyData> RectanglesAnalyze_Run(List<List<Rectangle>> rectanglesLists,List<string> panelNames, double lumberThickness,bool GenerateReviewFiles = true)
+        {
+
+            //string appDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            Assembly runningAssembly = Assembly.GetExecutingAssembly();
+            string appDirectory = runningAssembly.ManifestModule.FullyQualifiedName.Remove(runningAssembly.ManifestModule.FullyQualifiedName.Length - runningAssembly.ManifestModule.Name.Length);
+
+
+            List<PDFSheetAssemblyData> resultData = new List<PDFSheetAssemblyData>();
+            int cc = 0;
+            foreach (List<Rectangle> rectangles in rectanglesLists)
+            {
+
+                List<Rectangle> frames = GenerateFrames(rectangles, lumberThickness);
+
+
+
+                PDFSheetAssemblyData resultPanel = new PDFSheetAssemblyData(panelNames[cc], cc + 1, rectangles, frames);
+                resultData.Add(resultPanel);
+
+                //Generate Result Review
+                #region Result Review
+                if (GenerateReviewFiles)
+                {
+                    StringBuilder wallPath = new StringBuilder();
+                    StringBuilder framesPath = new StringBuilder();
+
+
+
+                    foreach (Rectangle rect in rectangles)
+                    {
+                        // Console.WriteLine(rect.ToSVGPath());
+                        wallPath.AppendLine(rect.ToSVGPath());
+                    }
+                    foreach (Rectangle rect in frames)
+                    {
+                        // Console.WriteLine(rect.ToSVGPath());
+                        framesPath.AppendLine(rect.ToSVGPath());
+                    }
+
+                    //generate HTML viewer for review
+                    GenerateHTMLViewer(appDirectory, wallPath, framesPath, cc, panelNames.Count, panelNames);
+                }
+
+
+                #endregion
+                cc++;
+            }
+            return resultData;
+        }
+
+        public static (List<int>, List<String>) GetValidPages(PDFFixedDocument document)
         {
             List<int> pages = new List<int>();
+            List<string> panelNames = new List<string>();
             for (int i = 0; i < document.Pages.Count; i++)
             {
                 PDFContentExtractor ce = new PDFContentExtractor(document.Pages[i]);
@@ -136,12 +213,13 @@ namespace PDF_Analyzer
                         if ((part as PDFTextVisualObject).TextRun.Text.Contains("PANEL:"))
                         {
                             pages.Add(i);
+                            panelNames.Add((pageVisualObjects[j + 1] as PDFTextVisualObject).TextRun.Text);
                             break;
                         }
                     }
                 }
             }
-            return pages;
+            return (pages, panelNames);
         }
         public static string PDFPathItemToString(PDFPathItem pdfPathItem)
         {
@@ -222,12 +300,13 @@ namespace PDF_Analyzer
             return lines;
         }
 
-        public static (List<PdfRectangleBlock>, List<Line>) ExtractPageGeometry(PDFFixedDocument document, int page) 
+        public static (List<PdfRectangleBlock>, List<Line>) ExtractPageGeometry(PDFFixedDocument document, int page)
         {
             List<PdfRectangleBlock> blocksList = new List<PdfRectangleBlock>();
             List<Line> linesList = new List<Line>();
 
             PDFContentExtractor ce = new PDFContentExtractor(document.Pages[page]);
+
             PDFVisualObjectCollection pageVisualObjects = ce.ExtractVisualObjects(false);
             //List<Rectangle> rectangleList = new List<Rectangle>();
             for (int i = 0; i < pageVisualObjects.Count; i++)
@@ -292,10 +371,26 @@ namespace PDF_Analyzer
 
             return frames;
         }
-        public static void GenerateHTMLViewer(string appDirectory, StringBuilder wallPath, StringBuilder framesPath, int page, List<int> validPages)
+        public static List<Rectangle> GenerateFrames(List<Rectangle> rectangles, double lumberThickness)
+        {
+            List<Rectangle> frames = new List<Rectangle>();
+            if (rectangles.Any())
+            {
+                frames.AddRange(rectangles[0].GenerateFramework(lumberThickness, false));
+
+                for (int i = 1; i < rectangles.Count; i++)
+                {
+                    frames.AddRange(rectangles[i].GenerateFramework(lumberThickness));
+                }
+
+            }
+
+            return frames;
+        }
+        public static void GenerateHTMLViewer(string appDirectory, StringBuilder wallPath, StringBuilder framesPath, int page, List<int> validPages, List<string> panelNames)
         {
             // Specify the path to the file
-            string filePath = appDirectory + "SVGViewerTemplate.html";
+            string filePath = System.IO.Path.Combine(appDirectory, "SVGViewerTemplate.html");
 
             // Read the contents of the file into a string
             string fileContents = File.ReadAllText(filePath);
@@ -307,7 +402,9 @@ namespace PDF_Analyzer
             modifiedHtml = modifiedHtml.Replace("<FRAMESPATH>", framesPath.ToString());
 
 
-            modifiedHtml = modifiedHtml.Replace("<CURRPAGE>", (page + 1).ToString());
+            //modifiedHtml = modifiedHtml.Replace("<CURRPAGE>", (page + 1).ToString());
+            modifiedHtml = modifiedHtml.Replace("<CURRPAGE>", panelNames[validPages.IndexOf(page)]);
+
             if (validPages[validPages.Count - 1] == page)//last
             {
                 modifiedHtml = modifiedHtml.Replace("<NEXTPAGE>", (validPages[0] + 1).ToString());
@@ -334,8 +431,67 @@ namespace PDF_Analyzer
             //<PREVPAGE>
 
 
-            Directory.CreateDirectory(appDirectory + "RESULT");
-            string savefilePath = appDirectory + "RESULT" + $"\\Page_{page + 1}.html";
+            Directory.CreateDirectory(System.IO.Path.Combine(appDirectory, "RESULT"));
+            string savefilePath = System.IO.Path.Combine(appDirectory, "RESULT") + $"\\Page_{page + 1}.html";
+
+
+
+
+
+
+            using (StreamWriter sw = File.CreateText(savefilePath))
+            {
+                string content = modifiedHtml;
+                sw.Write(content);
+            }
+        }
+        public static void GenerateHTMLViewer(string appDirectory, StringBuilder wallPath, StringBuilder framesPath, int page,int count, List<string> panelNames)
+        {
+            // Specify the path to the file
+            string filePath = System.IO.Path.Combine(appDirectory, "SVGViewerTemplate.html");
+
+            // Read the contents of the file into a string
+            string fileContents = File.ReadAllText(filePath);
+
+
+
+            // Perform the replacement
+            string modifiedHtml = fileContents.Replace("<WALLPATH>", wallPath.ToString());
+            modifiedHtml = modifiedHtml.Replace("<FRAMESPATH>", framesPath.ToString());
+
+
+            //modifiedHtml = modifiedHtml.Replace("<CURRPAGE>", (page + 1).ToString());
+            modifiedHtml = modifiedHtml.Replace("<CURRPAGE>", panelNames[page]);
+
+            if (page + 1 == count)//last
+            {
+                modifiedHtml = modifiedHtml.Replace("<NEXTPAGE>", (1).ToString());
+
+            }
+            else
+            {
+                modifiedHtml = modifiedHtml.Replace("<NEXTPAGE>", (page + 2).ToString());
+            }
+
+            if (page == 0)//first
+            {
+                modifiedHtml = modifiedHtml.Replace("<PREVPAGE>", (count).ToString());
+            }
+            else
+            {
+                modifiedHtml = modifiedHtml.Replace("<PREVPAGE>", (page).ToString());
+            }
+
+
+
+
+            //<CURRPAGE>
+            //<NEXTPAGE>
+            //<PREVPAGE>
+
+
+            Directory.CreateDirectory(System.IO.Path.Combine(appDirectory, "RESULT"));
+            string savefilePath = System.IO.Path.Combine(appDirectory, "RESULT") + $"\\Page_{page + 1}.html";
 
 
 

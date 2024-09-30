@@ -10,7 +10,7 @@ namespace PDF_Analyzer.Geometry
     {
         public Vector TopLeft { get; set; }
         public Vector BottomRight { get; set; }
-        public Vector Center { get { return new Vector((TopLeft.X + BottomRight.X) / 2, (TopLeft.Y + BottomRight.Y) / 2); } }
+        public Vector Center { get { return new Vector((TopLeft.X + BottomRight.X) / 2, (TopLeft.Y + BottomRight.Y) / 2, (TopLeft.Z + BottomRight.Z) / 2); } }
         public double Area { get { return Math.Abs((BottomRight.X - TopLeft.X) * (TopLeft.Y - BottomRight.Y)); } }
 
         //return new Vector((TopLeft.X + BottomRight.X) / 2, (TopLeft.Y + BottomRight.Y) / 2);
@@ -99,7 +99,7 @@ namespace PDF_Analyzer.Geometry
             }
             if (!IsClosedLoop(lines))
             {
-                return null;
+                //}} return null;
             }
 
             // Combine extended lines
@@ -122,12 +122,15 @@ namespace PDF_Analyzer.Geometry
             // Check if there are exactly 4 intersection points
             if (intersectionPoints.Count != 4)
             {
-                return null; // Not a rectangle
+                //}} return null; // Not a rectangle
             }
+            //}}//}}
+            intersectionPoints = new List<Vector>() { lines[0].Start, lines[0].End, lines[1].Start, lines[1].End, lines[2].Start, lines[2].End, lines[3].Start, lines[3].End };
+            //}}//}}
 
             // Find the top-left and bottom-right corners
-            Vector topLeft = intersectionPoints.OrderBy(p => p.X).ThenBy(p => p.Y).First();
-            Vector bottomRight = intersectionPoints.OrderByDescending(p => p.X).ThenByDescending(p => p.Y).First();
+            Vector topLeft = intersectionPoints.OrderBy(p => Math.Round(p.X, 4)).ThenBy(p => Math.Round(p.Y, 4)).First();
+            Vector bottomRight = intersectionPoints.OrderByDescending(p => Math.Round(p.X, 4)).ThenByDescending(p => Math.Round(p.Y, 4)).First();
 
             //// Check if the lines form a rectangle (opposite sides are parallel and equal length)
             //if (!IsRectangleShape(combinedLines, topLeft, bottomRight))
@@ -137,7 +140,7 @@ namespace PDF_Analyzer.Geometry
             // Check if the lines form a rectangle (opposite sides are parallel and equal length)
             if (!IsRectangleShape(combinedLines))
             {
-                return null; // Not a rectangle
+                //}} return null; // Not a rectangle
             }
 
 
@@ -387,6 +390,43 @@ namespace PDF_Analyzer.Geometry
             return false;
         }
 
+        //public List<Rectangle> GenerateFramework(double lumberThickness, bool insideFrame = true)
+        //{
+        //    double modifiedThickness = /*insideFrame ? -Math.Abs(lumberThickness) :*/ Math.Abs(lumberThickness);
+
+        //    List<Line> rectangleLines = GetSides();
+        //    List<Rectangle> frames = new List<Rectangle>();
+
+        //    if (insideFrame)
+        //    {
+        //        //1
+        //        frames.Add(new Rectangle(rectangleLines[0].Start, new Vector(rectangleLines[0].End.X - modifiedThickness, rectangleLines[0].End.Y + lumberThickness)));
+
+        //        //2
+        //        frames.Add(new Rectangle(new Vector(rectangleLines[1].Start.X - lumberThickness, rectangleLines[1].Start.Y), new Vector(rectangleLines[1].End.X, rectangleLines[1].End.Y - modifiedThickness)));
+
+        //        //3
+        //        frames.Add(new Rectangle(new Vector(rectangleLines[2].End.X + modifiedThickness, rectangleLines[2].End.Y - lumberThickness), rectangleLines[2].Start));
+
+        //        //4
+        //        frames.Add(new Rectangle(new Vector(rectangleLines[3].End.X, rectangleLines[3].End.Y + modifiedThickness), new Vector(rectangleLines[3].Start.X + lumberThickness, rectangleLines[3].Start.Y)));
+        //    }
+        //    else
+        //    {
+        //        //1
+        //        frames.Add(new Rectangle(new Vector(rectangleLines[0].Start.X, rectangleLines[0].Start.Y - lumberThickness), new Vector(rectangleLines[0].End.X + modifiedThickness, rectangleLines[0].End.Y)));
+
+        //        //2
+        //        frames.Add(new Rectangle(rectangleLines[1].Start, new Vector(rectangleLines[1].End.X + lumberThickness, rectangleLines[1].End.Y + modifiedThickness)));
+
+        //        //3
+        //        frames.Add(new Rectangle(new Vector(rectangleLines[2].End.X - modifiedThickness, rectangleLines[2].End.Y), new Vector(rectangleLines[2].Start.X, rectangleLines[2].Start.Y + lumberThickness)));
+
+        //        //4
+        //        frames.Add(new Rectangle(new Vector(rectangleLines[3].End.X - lumberThickness, rectangleLines[3].End.Y - modifiedThickness), rectangleLines[3].Start));
+        //    }
+        //    return frames;
+        //}
         public List<Rectangle> GenerateFramework(double lumberThickness, bool insideFrame = true)
         {
             double modifiedThickness = /*insideFrame ? -Math.Abs(lumberThickness) :*/ Math.Abs(lumberThickness);

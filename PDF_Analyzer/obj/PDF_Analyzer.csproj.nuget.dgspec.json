@@ -44,6 +44,10 @@
         "net7.0-windows7.0": {
           "targetAlias": "net7.0-windows",
           "dependencies": {
+            "IronPdf": {
+              "target": "Package",
+              "version": "[2024.9.3, )"
+            },
             "O2S.Components.PDF4NET.NET": {
               "target": "Package",
               "version": "[14.1.3, )"

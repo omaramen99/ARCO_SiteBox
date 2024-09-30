@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -120,7 +121,12 @@ namespace PDF_Analyzer.Geometry
             Vector otherDirection = otherLine.DirectionVector().Normalize();
 
             // Check if the cross product of the direction vectors is zero
-            return Math.Abs(thisDirection.X * otherDirection.Y - thisDirection.Y * otherDirection.X) < 0.001;
+
+            Vector crossProduct = thisDirection.CrossProduct(otherDirection);
+
+
+             return Math.Abs(crossProduct.X) < 0.001 && Math.Abs(crossProduct.Y) < 0.001 && Math.Abs(crossProduct.Z) < 0.001;
+            //return Math.Abs(thisDirection.X * otherDirection.Y - thisDirection.Y * otherDirection.X) < 0.001;
         }
 
         // Method to check if two lines are perpendicular
@@ -131,7 +137,8 @@ namespace PDF_Analyzer.Geometry
             Vector otherDirection = otherLine.DirectionVector().Normalize();
 
             // Check if the dot product of the direction vectors is zero
-            return Math.Abs(thisDirection.X * otherDirection.X + thisDirection.Y * otherDirection.Y) < 0.001;
+            return Math.Abs(thisDirection.DotProduct(otherDirection)) < 0.001;
+            //return Math.Abs(thisDirection.X * otherDirection.X + thisDirection.Y * otherDirection.Y) < 0.001;
         }
 
         // Method to check if one line is an extension of another
@@ -158,6 +165,29 @@ namespace PDF_Analyzer.Geometry
             return false;
         }
 
+        public bool IsContain(Line otherLine)
+        {
+            double l = Start.DistanceTo(End);
+            double l1 = Start.DistanceTo(otherLine.Midpoint());
+            double l2 = End.DistanceTo(otherLine.Midpoint());
+
+            return Math.Abs(l - (l1 + l2)) < 0.001;
+        }
+        public bool IsColinearWith(Line otherLine)
+        {
+
+            if (!this.IsParallelTo(otherLine))
+            {
+                return false;
+            }
+            if (ProjectPointOnLine(otherLine.Midpoint()).DistanceTo(otherLine.Midpoint()) > 0.001)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         // Method to get the distance between a point and the line
         public double DistanceToPoint(Vector point)
         {
@@ -175,6 +205,22 @@ namespace PDF_Analyzer.Geometry
 
             // Calculate the distance between the given point and the projection point
             return vectorToPoint.DistanceTo(projectionVector);
+        }
+        public Vector ProjectPointOnLine(Vector point)
+        {
+            Vector lineVector = Start.To(End);
+            Vector pointVector = point - Start;
+
+            double lineLength = lineVector.Magnitude();
+            double projectionScalar = VectorDot(pointVector, lineVector) / (lineLength * lineLength);
+
+            Vector projectedPoint = Start + projectionScalar * lineVector;
+
+            return projectedPoint;
+        }
+        public static double VectorDot(Vector v1, Vector v2)
+        {
+            return v1.X * v2.X + v1.Y * v2.Y;
         }
 
         public static Rectangle GetBoundingBox(List<Line> lines) 

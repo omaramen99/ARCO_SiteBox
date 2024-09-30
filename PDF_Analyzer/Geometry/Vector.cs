@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -151,6 +152,28 @@ namespace PDF_Analyzer.Geometry
         {
             return new Vector(X, Y, Z);
         }
+        public Vector To(Vector anotherVector) 
+        {
+            return new Vector(anotherVector.X - this.X, anotherVector.Y - this.Y, anotherVector.Z - this.Z);
+        }
+
+
+
+        // Calculate dot product of two vectors
+        public double DotProduct(Vector other)
+        {
+            return X * other.X + Y * other.Y + Z * other.Z;
+        }
+
+        // Calculate cross product of two vectors
+        public Vector CrossProduct(Vector other)
+        {
+            double newX = Y * other.Z - Z * other.Y;
+            double newY = Z * other.X - X * other.Z;
+            double newZ = X * other.Y - Y * other.X;
+
+            return new Vector(newX, newY, newZ);
+        }
         /// <summary>
         /// Returns a string representation of the vector in the format "(X, Y, Z)".
         /// </summary>
@@ -159,5 +182,34 @@ namespace PDF_Analyzer.Geometry
         {
             return $"({X}, {Y}, {Z})";
         }
+
+
+
+
+
+        public static Vector operator -(Vector v1, Vector v2)
+        {
+            return new Vector(v1.X - v2.X, v1.Y - v2.Y);
+        }
+
+        public static Vector operator +(Vector v1, Vector v2)
+        {
+            return new Vector(v1.X + v2.X, v1.Y + v2.Y);
+        }
+
+        public static Vector operator *(double scalar, Vector v)
+        {
+            return new Vector(scalar * v.X, scalar * v.Y);
+        }
+
+        public double Magnitude()
+        {
+            return Math.Sqrt(X * X + Y * Y);
+        }
+
+
+
+
+
     }
 }
