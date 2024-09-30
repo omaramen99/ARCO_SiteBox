@@ -343,6 +343,28 @@ namespace PDF_Analyzer.Geometry
 
             return sides;
         }
+        public List<Line> GetHorizontalSides()
+        {
+            List<Line> sides = new List<Line>();
+
+            sides.Add(new Line(TopLeft, TopRight()));
+            //sides.Add(new Line(TopRight(), BottomRight));
+            sides.Add(new Line(BottomRight, BottomLeft()));
+            //sides.Add(new Line(BottomLeft(), TopLeft));
+
+            return sides;
+        }
+        public List<Line> GetVerticalSides()
+        {
+            List<Line> sides = new List<Line>();
+
+            //sides.Add(new Line(TopLeft, TopRight()));
+            sides.Add(new Line(TopRight(), BottomRight));
+            //sides.Add(new Line(BottomRight, BottomLeft()));
+            sides.Add(new Line(BottomLeft(), TopLeft));
+
+            return sides;
+        }
 
         // Method to check if a line intersects the rectangle
         public bool IntersectsLine(Line line)
@@ -432,38 +454,45 @@ namespace PDF_Analyzer.Geometry
             double modifiedThickness = /*insideFrame ? -Math.Abs(lumberThickness) :*/ Math.Abs(lumberThickness);
 
             List<Line> rectangleLines = GetSides();
+
+            List<Line> rectangleHLines = GetHorizontalSides();
+            List<Line> rectangleVLines = GetVerticalSides();
+
+
+
             List<Rectangle> frames = new List<Rectangle>();
 
             if (insideFrame)
             {
                 //1
-                frames.Add(new Rectangle(rectangleLines[0].Start, new Vector(rectangleLines[0].End.X - modifiedThickness, rectangleLines[0].End.Y + lumberThickness)));
+                frames.Add(new Rectangle(new Vector(rectangleLines[0].Start.X + modifiedThickness, rectangleLines[0].Start.Y) , new Vector(rectangleLines[0].End.X - modifiedThickness, rectangleLines[0].End.Y + lumberThickness)));
 
                 //2
-                frames.Add(new Rectangle(new Vector(rectangleLines[1].Start.X - lumberThickness, rectangleLines[1].Start.Y), new Vector(rectangleLines[1].End.X, rectangleLines[1].End.Y - modifiedThickness)));
+                frames.Add(new Rectangle(new Vector(rectangleLines[1].Start.X - lumberThickness, rectangleLines[1].Start.Y), new Vector(rectangleLines[1].End.X, rectangleLines[1].End.Y)));
 
                 //3
-                frames.Add(new Rectangle(new Vector(rectangleLines[2].End.X + modifiedThickness, rectangleLines[2].End.Y - lumberThickness), rectangleLines[2].Start));
+                frames.Add(new Rectangle(new Vector(rectangleLines[2].End.X + modifiedThickness, rectangleLines[2].End.Y - lumberThickness), new Vector(rectangleLines[2].Start.X - modifiedThickness, rectangleLines[2].Start.Y)));
 
                 //4
-                frames.Add(new Rectangle(new Vector(rectangleLines[3].End.X, rectangleLines[3].End.Y + modifiedThickness), new Vector(rectangleLines[3].Start.X + lumberThickness, rectangleLines[3].Start.Y)));
+                frames.Add(new Rectangle(new Vector(rectangleLines[3].End.X, rectangleLines[3].End.Y), new Vector(rectangleLines[3].Start.X + lumberThickness, rectangleLines[3].Start.Y)));
             }
             else
             {
                 //1
-                frames.Add(new Rectangle(new Vector(rectangleLines[0].Start.X, rectangleLines[0].Start.Y - lumberThickness), new Vector(rectangleLines[0].End.X + modifiedThickness, rectangleLines[0].End.Y)));
+                frames.Add(new Rectangle(new Vector(rectangleLines[0].Start.X, rectangleLines[0].Start.Y - lumberThickness), rectangleLines[0].End));
 
                 //2
-                frames.Add(new Rectangle(rectangleLines[1].Start, new Vector(rectangleLines[1].End.X + lumberThickness, rectangleLines[1].End.Y + modifiedThickness)));
+                frames.Add(new Rectangle(new Vector(rectangleLines[1].Start.X, rectangleLines[1].Start.Y - modifiedThickness), new Vector(rectangleLines[1].End.X + lumberThickness, rectangleLines[1].End.Y + modifiedThickness)));
 
                 //3
-                frames.Add(new Rectangle(new Vector(rectangleLines[2].End.X - modifiedThickness, rectangleLines[2].End.Y), new Vector(rectangleLines[2].Start.X, rectangleLines[2].Start.Y + lumberThickness)));
+                frames.Add(new Rectangle(rectangleLines[2].End, new Vector(rectangleLines[2].Start.X, rectangleLines[2].Start.Y + lumberThickness)));
 
                 //4
-                frames.Add(new Rectangle(new Vector(rectangleLines[3].End.X - lumberThickness, rectangleLines[3].End.Y - modifiedThickness), rectangleLines[3].Start));
+                frames.Add(new Rectangle(new Vector(rectangleLines[3].End.X - lumberThickness, rectangleLines[3].End.Y - modifiedThickness), new Vector(rectangleLines[3].Start.X, rectangleLines[3].Start.Y + modifiedThickness)));
             }
             return frames;
         }
+
 
         public string ToSVGPath()
         {
