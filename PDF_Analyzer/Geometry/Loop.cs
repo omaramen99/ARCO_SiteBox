@@ -22,7 +22,7 @@ namespace PDF_Analyzer.Geometry
 
 
             Guid randomGuid = Guid.NewGuid();
-            Id = randomGuid.ToString();
+            Id = randomGuid.ToString(); 
         }
 
         public List<Rectangle> GenerateFramework(double lumberThickness)
