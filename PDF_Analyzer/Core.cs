@@ -27,10 +27,10 @@ namespace PDF_Analyzer
         public static void Run()
         {
             PDFAnalyze_Run();
-           // GenerateImages();
+            // GenerateImages();
 
         }
-        public static void GenerateImages() 
+        public static void GenerateImages()
         {
             Assembly runningAssembly = Assembly.GetExecutingAssembly();
             string appDirectory = runningAssembly.ManifestModule.FullyQualifiedName.Remove(runningAssembly.ManifestModule.FullyQualifiedName.Length - runningAssembly.ManifestModule.Name.Length);
@@ -107,7 +107,7 @@ namespace PDF_Analyzer
 
 
 
-                PDFSheetAssemblyData resultPanel = new PDFSheetAssemblyData(panelNames[validPages.IndexOf(page)], page+1, blocks.Select(b => b.rectangle).ToList(), frames);
+                PDFSheetAssemblyData resultPanel = new PDFSheetAssemblyData(panelNames[validPages.IndexOf(page)], page + 1, blocks.Select(b => b.rectangle).ToList(), frames);
                 resultData.Add(resultPanel);
 
                 //Generate Result Review
@@ -146,7 +146,7 @@ namespace PDF_Analyzer
             return resultData;
         }
 
-        public static List<PDFSheetAssemblyData> RectanglesAnalyze_Run(List<List<Rectangle>> rectanglesLists,List<string> panelNames, double lumberThickness,bool GenerateReviewFiles = true)
+        public static List<PDFSheetAssemblyData> RectanglesAnalyze_Run(List<List<Rectangle>> rectanglesLists, List<string> panelNames, double lumberThickness, bool GenerateReviewFiles = true)
         {
 
             //string appDirectory = AppDomain.CurrentDomain.BaseDirectory;
@@ -161,7 +161,10 @@ namespace PDF_Analyzer
 
                 List<Rectangle> frames = GenerateFrames(rectangles, lumberThickness);
 
-
+                if (panelNames[cc] == "P102")
+                {
+                    
+                }
 
                 PDFSheetAssemblyData resultPanel = new PDFSheetAssemblyData(panelNames[cc], cc + 1, rectangles, frames);
                 resultData.Add(resultPanel);
@@ -196,6 +199,7 @@ namespace PDF_Analyzer
             }
             return resultData;
         }
+
 
         public static (List<int>, List<String>) GetValidPages(PDFFixedDocument document)
         {
@@ -374,13 +378,38 @@ namespace PDF_Analyzer
         public static List<Rectangle> GenerateFrames(List<Rectangle> rectangles, double lumberThickness)
         {
             List<Rectangle> frames = new List<Rectangle>();
+            List<string> processedLoops = new List<string>();
             if (rectangles.Any())
             {
-                frames.AddRange(rectangles[0].GenerateFramework(lumberThickness, false));
+                if (rectangles[0].Loop == null)
+                {
+                    frames.AddRange(rectangles[0].GenerateFramework(lumberThickness, false));
+                }
+                else
+                {
+                    if (!processedLoops.Contains(rectangles[0].Loop.Id))
+                    {
+                        frames.AddRange(rectangles[0].Loop.GenerateFramework(lumberThickness));
+                        processedLoops.Add(rectangles[0].Loop.Id);
+                    }
+
+                }
 
                 for (int i = 1; i < rectangles.Count; i++)
                 {
-                    frames.AddRange(rectangles[i].GenerateFramework(lumberThickness));
+                    if (rectangles[i].Loop == null)
+                    {
+                        frames.AddRange(rectangles[i].GenerateFramework(lumberThickness));
+                    }
+                    else
+                    {
+                        if (!processedLoops.Contains(rectangles[i].Loop.Id))
+                        {
+                            frames.AddRange(rectangles[i].Loop.GenerateFramework(lumberThickness));
+                            processedLoops.Add(rectangles[i].Loop.Id);
+                        }
+                    }
+
                 }
 
             }
@@ -445,7 +474,7 @@ namespace PDF_Analyzer
                 sw.Write(content);
             }
         }
-        public static void GenerateHTMLViewer(string appDirectory, StringBuilder wallPath, StringBuilder framesPath, int page,int count, List<string> panelNames)
+        public static void GenerateHTMLViewer(string appDirectory, StringBuilder wallPath, StringBuilder framesPath, int page, int count, List<string> panelNames)
         {
             // Specify the path to the file
             string filePath = System.IO.Path.Combine(appDirectory, "SVGViewerTemplate.html");

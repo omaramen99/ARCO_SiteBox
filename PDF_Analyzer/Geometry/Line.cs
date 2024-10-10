@@ -12,11 +12,22 @@ namespace PDF_Analyzer.Geometry
         public Vector Start { get; set; }
         public Vector End { get; set; }
 
+        public bool IsVertical { get { return Math.Abs(Start.X - End.X) <= Math.Abs(Start.Y - End.Y); } }
+        public bool IsHorizontal { get { return Math.Abs(Start.Y - End.Y) < Math.Abs(Start.X - End.X); } }
+
+        public bool IsInternal { get; set; } = true;
+
         // Constructor to initialize a line with start and end points
         public Line(Vector start, Vector end)
         {
             Start = start;
             End = end;
+        }
+        public Line(Vector start, Vector end, bool isInternal)
+        {
+            Start = start;
+            End = end;
+            IsInternal = isInternal;
         }
 
         // Method to calculate the length of the line

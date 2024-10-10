@@ -8,12 +8,15 @@ namespace PDF_Analyzer.Geometry
 {
     public class Rectangle
     {
-        public Vector TopLeft { get; set; }
-        public Vector BottomRight { get; set; }
+        public Vector TopLeft { get; set; } = new Vector();
+        public Vector BottomRight { get; set; } = new Vector();
         public Vector Center { get { return new Vector((TopLeft.X + BottomRight.X) / 2, (TopLeft.Y + BottomRight.Y) / 2, (TopLeft.Z + BottomRight.Z) / 2); } }
         public double Area { get { return Math.Abs((BottomRight.X - TopLeft.X) * (TopLeft.Y - BottomRight.Y)); } }
 
+        public Loop Loop { get; set; } = null;
+
         //return new Vector((TopLeft.X + BottomRight.X) / 2, (TopLeft.Y + BottomRight.Y) / 2);
+
 
         // Constructor to initialize a rectangle with top-left and bottom-right corners
         public Rectangle(Vector topLeft, Vector bottomRight)
